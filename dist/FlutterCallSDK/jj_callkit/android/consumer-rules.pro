@@ -1,0 +1,2 @@
+-keep class com.useasy.callsdk.** { *; }
+-keep interface com.useasy.callsdk.** { *; }

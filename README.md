@@ -31,12 +31,14 @@ jj_callkit_flutter/
 │   └── Classes/JjCallkitPlugin.swift
 ├── example/             # 真机联调示例
 ├── doc/                 # 插件对外使用说明
-└── docs/                # 桥接开发文档、原生 API 对照
+├── docs/                # 桥接开发文档、原生 API 对照
+└── dist/FlutterCallSDK/ # 对外交付包（接入文档 + 插件快照 + Demo）
 ```
 
 - **Android**：改 `android/`，对照 [`docs/Android_Flutter桥接开发文档.md`](docs/Android_Flutter桥接开发文档.md) 与 [`docs/CallSDK_Android_API.md`](docs/CallSDK_Android_API.md)。
 - **iOS**：改 `ios/`，对照 [`docs/iOS_Flutter桥接开发文档.md`](docs/iOS_Flutter桥接开发文档.md) 与 [`docs/JJCallKit_iOS_API.md`](docs/JJCallKit_iOS_API.md)。
 - **协议 / 事件 / 错误码**：优先看 [`docs/Flutter插件实施计划.md`](docs/Flutter插件实施计划.md) 和 `lib/`，两端 MethodChannel 参数与 EventChannel payload 必须对齐。
+- **对外交付**：见 [`dist/FlutterCallSDK/`](dist/FlutterCallSDK/)，主文档为 [`JJCallKit_Flutter_接入文档.md`](dist/FlutterCallSDK/JJCallKit_Flutter_接入文档.md)。
 
 ## 本地开发
 

@@ -1,0 +1,6 @@
+framework module JJCallKit {
+  umbrella header "VoIPManager.h"
+  export *
+  module * { export * }
+}
+

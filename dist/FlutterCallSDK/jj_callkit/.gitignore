@@ -31,8 +31,3 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 /build/
 /coverage/
-
-# 交付 zip（目录 dist/FlutterCallSDK 进仓库）
-/dist/*.zip
-/dist/**/*.zip
-
