@@ -4,8 +4,8 @@ Flutter VoIP 插件**开发仓库**。iOS / Android SDK 同事一起维护，把
 
 | 项 | 版本 |
 |----|------|
-| 插件 | 0.1.0 |
-| Android SDK | callsdk 1.3.7（arm64-v8a） |
+| 插件 | 0.1.1 |
+| Android SDK | callsdk 1.3.8（arm64-v8a） |
 | iOS SDK | JJCallKit 1.1.1 |
 | Flutter | 3.16+ |
 | iOS | 12.4+ |

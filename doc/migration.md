@@ -7,6 +7,6 @@
 3. 跑 `example` 的登录、外呼、挂断、外显号码。
 4. 更新 README 里的版本对应表和本文件。
 
-0.1.0 内置的是 callsdk 1.3.7 和 JJCallKit 1.1.1。Android 侧 `getCurrentAudioRoute()` / `audioRouteChanged` 走原生音频路由（听筒 / 扬声器 / 蓝牙）；iOS 仍主要按扬声器开关近似。
+0.1.1 内置的是 callsdk 1.3.8 和 JJCallKit 1.1.1。Android 侧 `getCurrentAudioRoute()` / `audioRouteChanged` 走原生音频路由（听筒 / 扬声器 / 蓝牙）；iOS 仍主要按扬声器开关近似。
 
 从原生 Demo 迁到 Flutter 时，删除宿主里的 AAR / Framework 依赖，改调 `JJCallKit`。不要保留原来的 `CallSDK.init` 或 `VoIPManager.login`。

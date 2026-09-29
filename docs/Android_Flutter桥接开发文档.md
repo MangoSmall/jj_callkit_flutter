@@ -1,6 +1,6 @@
 # Android Flutter 桥接开发文档
 
-> 目标：把 `callsdk-1.3.7.aar`（`com.useasy.callsdk.CallSDK`）封装进 Flutter Plugin，让 Dart 侧用同一套 API 完成登录、外呼、通话控制和外显号码配置。  
+> 目标：把 `callsdk-1.3.8.aar`（`com.useasy.callsdk.CallSDK`）封装进 Flutter Plugin，让 Dart 侧用同一套 API 完成登录、外呼、通话控制和外显号码配置。  
 > API 对照见同目录 `CallSDK_Android_API.md`。  
 > iOS 侧对照见 `iOS_Flutter桥接开发文档.md`。
 
@@ -19,7 +19,7 @@
 jj_callkit/
 ├── lib/                          # Dart 统一 API（两端共用）
 ├── android/
-│   ├── libs/callsdk-1.3.7.aar
+│   ├── libs/callsdk-1.3.8.aar
 │   ├── build.gradle
 │   ├── consumer-rules.pro
 │   └── src/main/
@@ -81,10 +81,10 @@ flutter create --template=plugin --platforms=android,ios --org com.jj jj_callkit
 
 ### 步骤 2：放入 AAR 并声明依赖
 
-把交付包里的 `Android/sdk/callsdk-1.3.7.aar` 拷到：
+把交付包里的 `Android/sdk/callsdk-1.3.8.aar` 拷到：
 
 ```
-jj_callkit/android/libs/callsdk-1.3.7.aar
+jj_callkit/android/libs/callsdk-1.3.8.aar
 ```
 
 `android/build.gradle`：
@@ -105,7 +105,7 @@ repositories {
 }
 
 dependencies {
-    implementation(name: 'callsdk-1.3.7', ext: 'aar')
+    implementation(name: 'callsdk-1.3.8', ext: 'aar')
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 }
 ```

@@ -36,7 +36,7 @@
 | `setSpeaker` / `isSpeakerOn` | 扬声器 |
 | `getCurrentAudioRoute()` | `receiver` / `speaker` / `bluetooth` |
 
-Android（callsdk 1.3.7）可返回 `receiver` / `speaker` / `bluetooth`。iOS 仍主要按扬声器开关近似，不保证 `bluetooth`。
+Android（callsdk 1.3.8）可返回 `receiver` / `speaker` / `bluetooth`。iOS 仍主要按扬声器开关近似，不保证 `bluetooth`。
 
 ## 外显号码
 

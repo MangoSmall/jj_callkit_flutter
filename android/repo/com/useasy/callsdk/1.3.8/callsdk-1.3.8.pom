@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.useasy</groupId>
   <artifactId>callsdk</artifactId>
-  <version>1.3.7</version>
+  <version>1.3.8</version>
   <packaging>aar</packaging>
   <name>CallSDK</name>
   <description>Call SDK for Android</description>

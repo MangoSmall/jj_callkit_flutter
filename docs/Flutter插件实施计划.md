@@ -46,7 +46,7 @@ JJSDK/Flutter/
 │   │       ├── events/                  # CallEvent sealed class
 │   │       └── exceptions.dart          # JJCallException
 │   ├── android/
-│   │   ├── libs/callsdk-1.3.7.aar
+│   │   ├── libs/callsdk-1.3.8.aar
 │   │   └── src/main/kotlin/.../JjCallKitPlugin.kt
 │   ├── ios/
 │   │   ├── Frameworks/JJCallKit.xcframework
@@ -251,7 +251,7 @@ Demo 是**对外用户的第一份可运行参考**，功能对齐原生 Demo，
 2. 快速开始（3 步：依赖 → 权限 → init + makeCall）  
 3. 链接到 `doc/` 详细文档  
 4. 平台配置摘要（Android 权限自动合并；iOS 必须配 Info.plist）  
-5. 与原生 SDK 版本对应表（如 jj_callkit 0.1.0 → callsdk 1.3.7 + JJCallKit x.x）
+5. 与原生 SDK 版本对应表（如 jj_callkit 0.1.0 → callsdk 1.3.8 + JJCallKit x.x）
 
 ### 6.2 doc/integration_android.md
 
@@ -299,7 +299,7 @@ Demo 是**对外用户的第一份可运行参考**，功能对齐原生 Demo，
 ### Phase 0：准备（3~5 天）
 
 - [ ] `flutter create --template=plugin` 创建 `jj_callkit`  
-- [ ] 锁定原生二进制版本：callsdk-1.3.7.aar、JJCallKit xcframework（从 VoIPManagerFramework 编出）  
+- [ ] 锁定原生二进制版本：callsdk-1.3.8.aar、JJCallKit xcframework（从 VoIPManagerFramework 编出）  
 - [ ] 定稿 MethodChannel / EventChannel 协议（与桥接文档 4 节一致）  
 - [ ] 定稿 Dart 公开 API（本文 3 节）
 
@@ -374,7 +374,7 @@ Demo 是**对外用户的第一份可运行参考**，功能对齐原生 Demo，
 
 ```
 jj_callkit 0.1.0
-├── embeds callsdk 1.3.7 (Android)
+├── embeds callsdk 1.3.8 (Android)
 ├── embeds JJCallKit x.x.x (iOS, 来自 VoIPManagerFramework 某 tag)
 └── requires Flutter >= 3.16, Dart >= 3.2
 ```

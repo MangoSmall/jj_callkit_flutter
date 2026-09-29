@@ -46,7 +46,7 @@ enum CallState {
   String get wireName => name;
 }
 
-/// 音频输出。Android（callsdk 1.3.7+）支持听筒 / 扬声器 / 蓝牙；iOS 目前主要保证听筒和扬声器。
+/// 音频输出。Android（callsdk 1.3.8+）支持听筒 / 扬声器 / 蓝牙；iOS 目前主要保证听筒和扬声器。
 enum AudioRoute {
   receiver,
   speaker,

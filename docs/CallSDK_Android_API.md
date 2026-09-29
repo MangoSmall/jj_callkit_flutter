@@ -1,7 +1,7 @@
 # CallSDK Android API 参考
 
 > 来源：`CallSDK_Android_HarmonyOS_20260802/Android/接入文档/CallSDK_Android_接入文档.md`  
-> SDK 版本：**1.3.7**（`callsdk-1.3.7.aar`）  
+> SDK 版本：**1.3.8**（`callsdk-1.3.8.aar`）  
 > 包名：`com.useasy.callsdk`  
 > 用途：供 Flutter 插件 Android 端 MethodChannel / EventChannel 对接参考
 
@@ -456,7 +456,7 @@ android {
 }
 
 dependencies {
-    implementation(name: 'callsdk-1.3.7', ext: 'aar')
+    implementation(name: 'callsdk-1.3.8', ext: 'aar')
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'  // 若项目未引入
 }
 ```
