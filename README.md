@@ -5,7 +5,7 @@ Flutter VoIP 插件**开发仓库**。iOS / Android SDK 同事一起维护，把
 | 项 | 版本 |
 |----|------|
 | 插件 | 0.1.0 |
-| Android SDK | callsdk 1.3.3（arm64-v8a） |
+| Android SDK | callsdk 1.3.7（arm64-v8a） |
 | iOS SDK | JJCallKit 1.1.1 |
 | Flutter | 3.16+ |
 | iOS | 12.4+ |
@@ -23,8 +23,8 @@ Flutter VoIP 插件**开发仓库**。iOS / Android SDK 同事一起维护，把
 ```
 jj_callkit_flutter/
 ├── lib/                 # Dart 统一 API（两端共用，改协议先改这里）
-├── android/             # Android 桥接 + AAR（Android 同事主改）
-│   ├── libs/            # callsdk-*.aar、pjsua2-classes.jar
+├── android/             # Android 桥接 + CallSDK（Android 同事主改）
+│   ├── repo/            # 本地 Maven：com.useasy:callsdk:x.y.z
 │   └── src/.../JjCallkitPlugin.kt
 ├── ios/                 # iOS 桥接 + xcframework（iOS 同事主改）
 │   ├── Frameworks/      # JJCallKit.xcframework

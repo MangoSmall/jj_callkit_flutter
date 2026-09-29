@@ -23,6 +23,8 @@ import com.useasy.callsdk.listener.DisplayNumberListListener
 import com.useasy.callsdk.listener.InitListener
 import com.useasy.callsdk.listener.MakeCallCallback
 import com.useasy.callsdk.listener.NumberGroupListListener
+import com.useasy.callsdk.utils.AudioRoute
+import com.useasy.callsdk.utils.AudioRouteChangeListener
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -65,6 +67,12 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         }
     }
 
+    private val audioRouteChangeListener = object : AudioRouteChangeListener {
+        override fun onAudioRouteChanged(route: AudioRoute) {
+            emit("audioRouteChanged", mapOf("route" to routeName(route)))
+        }
+    }
+
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         appContext = binding.applicationContext
         val messenger = binding.binaryMessenger
@@ -84,6 +92,7 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         eventSink = null
         CallSDK.removeCallStateListener(callStateListener)
         CallSDK.setOnServerCallListener(null)
+        CallSDK.setAudioRouteChangeListener(null)
         // 热重载会拆 Engine，这里不要 CallSDK.release()。
     }
 
@@ -105,6 +114,7 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
             "release" -> {
                 CallSDK.removeCallStateListener(callStateListener)
                 CallSDK.setOnServerCallListener(null)
+                CallSDK.setAudioRouteChangeListener(null)
                 CallSDK.release()
                 result.success(null)
             }
@@ -121,12 +131,12 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
             "setSpeaker" -> {
                 val enabled = call.argument<Boolean>("enabled") == true
                 CallSDK.openLoudSpeaker(enabled)
-                emit("audioRouteChanged", mapOf("route" to if (enabled) "speaker" else "receiver"))
+                emit("audioRouteChanged", mapOf("route" to routeName(CallSDK.getCurrentAudioRoute())))
                 result.success(null)
             }
             "isSpeakerOn" -> result.success(CallSDK.isLoudSpeakerOn())
             "getCurrentAudioRoute" -> {
-                result.success(if (CallSDK.isLoudSpeakerOn()) "speaker" else "receiver")
+                result.success(routeName(CallSDK.getCurrentAudioRoute()))
             }
             "sendDTMF" -> {
                 CallSDK.sendDTMF(call.argument<String>("digit").orEmpty())
@@ -210,6 +220,13 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         CallSDK.setOnServerCallListener { info ->
             emit("serverCall", callInfoMap(info))
         }
+        CallSDK.setAudioRouteChangeListener(audioRouteChangeListener)
+    }
+
+    private fun routeName(route: AudioRoute): String = when (route) {
+        AudioRoute.SPEAKER -> "speaker"
+        AudioRoute.BLUETOOTH -> "bluetooth"
+        AudioRoute.RECEIVER -> "receiver"
     }
 
     private fun handleMakeCall(call: MethodCall, result: MethodChannel.Result) {
