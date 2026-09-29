@@ -48,7 +48,7 @@ flutter run   # 建议 arm64 真机；Android 当前包无 x86
 
 换原生 SDK 包时：
 
-- Android：替换 `android/libs/` 里的 aar/jar，必要时改 `android/build.gradle`
+- Android：替换 `android/repo/com/useasy/callsdk/<version>/` 下的 aar/pom，并改 `android/build.gradle` 里的版本号
 - iOS：替换 `ios/Frameworks/JJCallKit.xcframework`，必要时改 `ios/jj_callkit.podspec`
 
 ## 文档索引
