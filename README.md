@@ -38,7 +38,7 @@ jj_callkit_flutter/
 - **Android**：改 `android/`，对照 [`docs/Android_Flutter桥接开发文档.md`](docs/Android_Flutter桥接开发文档.md) 与 [`docs/CallSDK_Android_API.md`](docs/CallSDK_Android_API.md)。
 - **iOS**：改 `ios/`，对照 [`docs/iOS_Flutter桥接开发文档.md`](docs/iOS_Flutter桥接开发文档.md) 与 [`docs/JJCallKit_iOS_API.md`](docs/JJCallKit_iOS_API.md)。
 - **协议 / 事件 / 错误码**：优先看 [`docs/Flutter插件实施计划.md`](docs/Flutter插件实施计划.md) 和 `lib/`，两端 MethodChannel 参数与 EventChannel payload 必须对齐。
-- **对外交付**：见 [`dist/FlutterCallSDK/`](dist/FlutterCallSDK/)，主文档为 [`JJCallKit_Flutter_接入文档.md`](dist/FlutterCallSDK/JJCallKit_Flutter_接入文档.md)（交付包不放 README）。发版同步命令如下（在仓库根执行）：
+- **对外交付**：见 [`dist/FlutterCallSDK/`](dist/FlutterCallSDK/)，主文档为 [`JJCallKit_Flutter_接入文档.md`](dist/FlutterCallSDK/JJCallKit_Flutter_接入文档.md)。客户包 README 只保留目录与快速开始；发版同步命令如下（在仓库根执行）：
 
 ```bash
 rsync -a --delete \
@@ -51,6 +51,7 @@ rsync -a --delete \
   example/ dist/FlutterCallSDK/jj_callkit-demo/
 
 # Demo 依赖：jj_callkit-demo/pubspec.yaml → path: ../jj_callkit
+# 同步后勿把本段维护说明写回客户包 README
 ```
 
 
