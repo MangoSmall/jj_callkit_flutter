@@ -93,8 +93,11 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         eventSink = null
         CallSDK.removeCallStateListener(callStateListener)
         CallSDK.setOnServerCallListener(null)
+        CallSDK.setOnKickedListener(null)
+        CallSDK.setOnSipDisconnectedListener(null)
         CallSDK.setAudioRouteChangeListener(null)
-        // 热重载会拆 Engine，这里不要 CallSDK.release()，也不清 kicked / sipDisconnected。
+        // 热重载会拆 Engine，这里不要 CallSDK.release()。
+        // 下次 onAttachedToEngine → registerPersistentListeners 会重新挂监听。
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {

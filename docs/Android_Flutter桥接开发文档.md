@@ -1,6 +1,6 @@
 # Android Flutter 桥接开发文档
 
-> 目标：把 `callsdk-1.3.8.aar`（`com.useasy.callsdk.CallSDK`）封装进 Flutter Plugin，让 Dart 侧用同一套 API 完成登录、外呼、通话控制和外显号码配置。  
+> 目标：把 `callsdk-1.3.9`（`com.useasy.callsdk.CallSDK`，本地 Maven `android/repo`）封装进 Flutter Plugin，让 Dart 侧用同一套 API 完成登录、外呼、通话控制和外显号码配置。  
 > API 对照见同目录 `CallSDK_Android_API.md`。  
 > iOS 侧对照见 `iOS_Flutter桥接开发文档.md`。
 
@@ -19,7 +19,7 @@
 jj_callkit/
 ├── lib/                          # Dart 统一 API（两端共用）
 ├── android/
-│   ├── libs/callsdk-1.3.8.aar
+│   ├── repo/com/useasy/callsdk/1.3.9/   # 本地 Maven：callsdk AAR
 │   ├── build.gradle
 │   ├── consumer-rules.pro
 │   └── src/main/
@@ -81,32 +81,26 @@ flutter create --template=plugin --platforms=android,ios --org com.jj jj_callkit
 
 ### 步骤 2：放入 AAR 并声明依赖
 
-把交付包里的 `Android/sdk/callsdk-1.3.8.aar` 拷到：
+把交付包里的 `callsdk-1.3.9.aar`（及 pom）放到本地 Maven：
 
 ```
-jj_callkit/android/libs/callsdk-1.3.8.aar
+jj_callkit/android/repo/com/useasy/callsdk/1.3.9/
 ```
 
-`android/build.gradle`：
+`android/build.gradle`（AGP 8 不要再用 `files(*.aar)`）：
 
 ```gradle
-android {
-    namespace 'com.jj.jj_callkit'
-    compileSdk 34
-
-    defaultConfig {
-        minSdk 21
-        consumerProguardFiles 'consumer-rules.pro'
+def callSdkMaven = uri("${projectDir}/repo")
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = callSdkMaven }
     }
 }
 
-repositories {
-    flatDir { dirs 'libs' }
-}
-
 dependencies {
-    implementation(name: 'callsdk-1.3.8', ext: 'aar')
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    api("com.useasy:callsdk:1.3.9")
 }
 ```
 
@@ -160,10 +154,8 @@ class JjCallKitPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         eventChannel = EventChannel(messenger, "com.jj/callkit/events")
         eventChannel.setStreamHandler(this)
 
-        // 被踢与 SDK 生命周期无关，尽早挂上
-        CallSDK.setOnKickedListener {
-            emit("kicked", emptyMap())
-        }
+        // kicked / sipDisconnected / CallState 等持久监听统一在 registerPersistentListeners 挂上
+        registerPersistentListeners()
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -172,8 +164,11 @@ class JjCallKitPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
         eventSink = null
         CallSDK.removeCallStateListener(callStateListener)
         CallSDK.setOnServerCallListener(null)
+        CallSDK.setOnKickedListener(null)
+        CallSDK.setOnSipDisconnectedListener(null)
         CallSDK.setAudioRouteChangeListener(null)
-        // 不要在这里 CallSDK.release()，Engine 重建不等于用户退出登录
+        // 不要在这里 CallSDK.release()，Engine 重建不等于用户退出登录。
+        // 下次 attach 会重新 registerPersistentListeners。
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -255,13 +250,15 @@ private fun handleInit(call: MethodCall, result: MethodChannel.Result) {
 }
 ```
 
-`registerPersistentListeners()` 在 init 前调用一次，内部做：
+`registerPersistentListeners()` 在 attach / init 前调用，内部做：
 
 - `CallSDK.addCallStateListener(callStateListener)`（先 remove 再 add，避免重复注册）
 - `CallSDK.setOnServerCallListener { emit("serverCall", callInfoMap(it)) }`
+- `CallSDK.setOnKickedListener { emit("kicked", emptyMap()) }`
+- `CallSDK.setOnSipDisconnectedListener { emit("sipDisconnected", emptyMap()) }`
 - `CallSDK.setAudioRouteChangeListener { emit("audioRouteChanged", mapOf("route" to route.name.lowercase())) }`
 
-`release()` 之后这些监听会被 SDK 清掉，下次 `init` 必须重新注册。
+`release()` / `onDetachedFromEngine` 会卸掉这些监听；下次 `attach` / `init` 必须重新注册。
 
 ### 步骤 6：把通话状态转成统一事件
 
@@ -269,6 +266,9 @@ Listener 只负责组 Map，不操作 UI。
 
 ```kotlin
 private val callStateListener = object : CallStateListener {
+    override fun onCallCalling(callInfo: CallInfo) {
+        emit("callCalling", callInfoMap(callInfo))
+    }
     override fun onCallAlerting(callInfo: CallInfo) {
         emit("callAlerting", callInfoMap(callInfo))
     }
@@ -433,7 +433,9 @@ flutter run
 |------|------|------------------|
 | `sipConnected` | `onInitSuccess` | — |
 | `sipConnectFailed` | `onInitFailed` | `errorCode`, `errorMsg` |
+| `sipDisconnected` | `setOnSipDisconnectedListener` | — |
 | `kicked` | `setOnKickedListener` | — |
+| `callCalling` | `onCallCalling` | CallInfo |
 | `callAlerting` | `onCallAlerting` | CallInfo |
 | `callAnswered` | `onCallAnswered` | CallInfo |
 | `callReleased` | `onCallReleased` | CallInfo + `hangupType` |
@@ -447,7 +449,7 @@ flutter run
 ## 5. 实现时要注意的点
 
 1. **Result 只能调用一次。** `pendingInit` 在 success/error 后立刻置空。超时、重复 `init` 不要再碰旧 Result。
-2. **不要在 `onDetachedFromEngine` 里 `release()`。** Flutter 热重载会拆 Engine，拆掉不等于登出。登出只走 Dart 的 `logout` / `release`。
+2. **不要在 `onDetachedFromEngine` 里 `release()`。** Flutter 热重载会拆 Engine，拆掉不等于登出。登出只走 Dart 的 `logout` / `release`。Detach 时应卸掉 kicked / sipDisconnected 等全局监听，避免闭包持有旧插件实例；下次 attach 再挂上。
 3. **监听器成对。** `addCallStateListener` 与 `removeCallStateListener` 使用同一个对象实例。`release()` 之后下次 `init` 要重新 add。
 4. **服务端来电只推事件，不在 Native 弹页面。** 打开通话页是 Flutter 的事。
 5. **userData 超限。** 超过约 255 字节时 SDK 走 `MakeCallCallback.onFailed(-312)`，原样 `result.error`。

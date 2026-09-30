@@ -1,6 +1,6 @@
 # JJCallKit Flutter 接入文档
 
-> 当前交付版本：**0.1.2**  
+> 当前交付版本：**0.1.3**  
 > 内置原生 SDK：Android **callsdk 1.3.9**、iOS **JJCallKit 1.1.1**  
 > Dart 入口：`package:jj_callkit/jj_callkit.dart` → `JJCallKit`
 
@@ -83,7 +83,7 @@ dependencies:
   jj_callkit:
     git:
       url: git@github.com:your-org/jj_callkit_flutter.git
-      ref: v0.1.2
+      ref: v0.1.3
 ```
 
 然后：
@@ -161,6 +161,9 @@ void startListening() {
         break;
       case SipConnectFailedEvent(:final errorCode, :final errorMsg):
         // 登录或 SIP 注册失败
+        break;
+      case SipDisconnectedEvent():
+        // 曾注册成功后 SIP 掉线，回到登录页并提示重新登录
         break;
       case KickedEvent():
         // 账号在其他端登录，回到登录页
@@ -377,7 +380,7 @@ flutter pub get
 flutter run   # 建议 arm64 真机
 ```
 
-Demo 覆盖：登录、外呼、挂断、静音、扬声器、DTMF、被踢、外显号码设置页。
+Demo 覆盖：登录、外呼、挂断、静音、扬声器、DTMF、被踢、SIP 断开、外显号码设置页。
 
 ---
 
@@ -407,6 +410,7 @@ Demo 覆盖：登录、外呼、挂断、静音、扬声器、DTMF、被踢、�
 
 | 版本 | 说明 |
 |------|------|
+| **0.1.3** | Demo 补齐 `SipDisconnectedEvent`；Android detach 清理全局监听；去掉过时 1.3.8 AAR |
 | **0.1.2** | Android 内置 callsdk 升级至 **1.3.9**（补齐 `CallCallingEvent` / `SipDisconnectedEvent`，对齐 iOS） |
 | **0.1.1** | Android 内置 callsdk 升级至 **1.3.8**（限 PCMA/PCMU + TCP INVITE 兜底，修复部分 Wi‑Fi/NAT 下外呼失败） |
 | **0.1.0** | 首版：统一 Dart API；内置 callsdk 1.3.7 + JJCallKit 1.1.1；登录 / 外呼 / 媒体控制 / 外显号码 / 事件流 |

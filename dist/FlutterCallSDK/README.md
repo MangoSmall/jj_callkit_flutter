@@ -8,7 +8,7 @@
 | `jj_callkit/` | Flutter 插件快照（含 Android callsdk 1.3.9 + iOS JJCallKit 1.1.1） |
 | `jj_callkit-demo/` | 可运行示例工程 |
 
-当前插件版本：**0.1.2**
+当前插件版本：**0.1.3**
 
 源码与桥接开发文档在仓库根目录；发版时把当前插件/example 同步进本目录后再交付。
 

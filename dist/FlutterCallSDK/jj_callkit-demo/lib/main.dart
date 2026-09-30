@@ -53,6 +53,13 @@ class _JJCallAppState extends State<JJCallApp> {
           MaterialPageRoute<void>(builder: (_) => const LoginPage()),
           (_) => false,
         );
+      case SipDisconnectedEvent():
+        _closeCall();
+        _toast('SIP 已断开，请重新登录');
+        navigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+          (_) => false,
+        );
       default:
         break;
     }

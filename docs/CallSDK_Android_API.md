@@ -24,12 +24,13 @@ CallSDK 是一款 Android 通话 SDK，基于 SIP 协议提供音频通话能力
 ┌──────────────────────────────────────────────────────────┐
 │                       CallSDK                             │
 │                                                          │
-│  ① InitListener              → 初始化结果                 │
-│  ② OnServerCallListener      → 服务端通话通知             │
-│  ③ CallStateListener         → 通话状态变化               │
-│  ④ MakeCallCallback          → 外呼发起结果               │
-│  ⑤ setOnKickedListener       → 被踢下线通知               │
-│  ⑥ AudioRouteChangeListener  → 音频路由变化（v1.3.5+）    │
+│  ① InitListener                    → 初始化结果           │
+│  ② OnServerCallListener            → 服务端通话通知       │
+│  ③ CallStateListener               → 通话状态变化         │
+│  ④ MakeCallCallback                → 外呼发起结果         │
+│  ⑤ setOnKickedListener             → 被踢下线通知         │
+│  ⑥ setOnSipDisconnectedListener    → SIP 注册断开（v1.3.9+）│
+│  ⑦ AudioRouteChangeListener        → 音频路由变化（v1.3.5+）│
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -461,6 +462,17 @@ CallSDK.setOnKickedListener {
 
 ### 7.2 依赖引入
 
+业务侧推荐通过 Flutter 插件本地 Maven 坐标引入（插件已内置）：
+
+```groovy
+dependencies {
+    api("com.useasy:callsdk:1.3.9")
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'  // 若项目未引入
+}
+```
+
+若仍用 flatDir 直接依赖 AAR：
+
 ```groovy
 android {
     repositories {
@@ -469,7 +481,7 @@ android {
 }
 
 dependencies {
-    implementation(name: 'callsdk-1.3.8', ext: 'aar')
+    implementation(name: 'callsdk-1.3.9', ext: 'aar')
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'  // 若项目未引入
 }
 ```
