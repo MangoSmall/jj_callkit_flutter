@@ -76,16 +76,6 @@ dependencies:
     path: ../jj_callkit   # 按实际相对路径调整
 ```
 
-也可用 git 依赖（私有仓库）：
-
-```yaml
-dependencies:
-  jj_callkit:
-    git:
-      url: git@github.com:your-org/jj_callkit_flutter.git
-      ref: v0.1.3
-```
-
 然后：
 
 ```bash

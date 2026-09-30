@@ -94,7 +94,7 @@ flutter run   # 建议 arm64 真机；Android 当前包无 x86
 ```yaml
 dependencies:
   jj_callkit:
-    path: ../jj_callkit_flutter   # 或你们自己的私有源 / git
+    path: ../jj_callkit_flutter   # 按实际相对路径调整
   permission_handler: ^11.4.0
 ```
 

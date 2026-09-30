@@ -14,7 +14,7 @@
 ## 快速开始
 
 1. 阅读《JJCallKit_Flutter_接入文档.md》
-2. 业务工程 `pubspec.yaml` 依赖本目录下的 `jj_callkit/`（path 或私有 git）
+2. 业务工程 `pubspec.yaml` 用 path 依赖本目录下的 `jj_callkit/`
 3. 可选：用 `jj_callkit-demo/` 先真机跑通登录 / 外呼
 
 ```bash

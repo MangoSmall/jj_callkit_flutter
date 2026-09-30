@@ -26,4 +26,4 @@ dependencies:
     path: ../jj_callkit
 ```
 
-私有仓库可以改成 git 依赖。不要把插件发布成只含 Dart、不含 `android/libs` 的空包。
+不要把插件发成只含 Dart、不含原生 SDK 的空包（Android 需带上 `android/repo` 内的 callsdk）。
