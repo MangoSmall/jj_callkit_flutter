@@ -1,7 +1,7 @@
 # CallSDK Android API 参考
 
 > 来源：`CallSDK_Android_HarmonyOS_20260802/Android/接入文档/CallSDK_Android_接入文档.md`  
-> SDK 版本：**1.3.8**（`callsdk-1.3.8.aar`）  
+> SDK 版本：**1.3.9**（`callsdk-1.3.9.aar`）  
 > 包名：`com.useasy.callsdk`  
 > 用途：供 Flutter 插件 Android 端 MethodChannel / EventChannel 对接参考
 
@@ -89,6 +89,7 @@ CallSDK 是一款 Android 通话 SDK，基于 SIP 协议提供音频通话能力
 |------|------|------|
 | `setOnServerCallListener` | `CallSDK.setOnServerCallListener(listener)` | 设置服务端通话监听器（全局唯一，传 `null` 移除） |
 | `setOnKickedListener` | `CallSDK.setOnKickedListener(listener)` | 设置被踢下线监听器（全局唯一，传 `null` 移除） |
+| `setOnSipDisconnectedListener` | `CallSDK.setOnSipDisconnectedListener(listener)` | 设置 SIP 注册断开监听器（v1.3.9+，全局唯一，传 `null` 移除） |
 | `addCallStateListener` | `CallSDK.addCallStateListener(listener)` | 添加通话状态监听器（支持多个） |
 | `removeCallStateListener` | `CallSDK.removeCallStateListener(listener)` | 移除通话状态监听器 |
 | `setAudioRouteChangeListener` | `CallSDK.setAudioRouteChangeListener(listener)` | 设置音频路由变化监听器（v1.3.5+，传 `null` 移除） |
@@ -163,6 +164,7 @@ interface MakeCallCallback {
 
 ```kotlin
 interface CallStateListener {
+    fun onCallCalling(callInfo: CallInfo) {}   // v1.3.9+
     fun onCallAlerting(callInfo: CallInfo) {}
     fun onCallAnswered(callInfo: CallInfo) {}
     fun onCallReleased(callInfo: CallInfo, hangupType: Int) {}
@@ -172,9 +174,20 @@ interface CallStateListener {
 ```
 
 > 所有方法提供默认空实现，开发者只需 override 关心的回调。  
-> `addCallStateListener` / `removeCallStateListener` 必须成对调用。
+> `addCallStateListener` / `removeCallStateListener` 必须成对调用。  
+> `onCallCalling` 对应 SIP INVITE 已发出（`PROCEEDING` / `CALLING`），早于振铃。
 
-### 4.5 AudioRouteChangeListener — 音频路由监听器（v1.3.5+）
+### 4.5 setOnSipDisconnectedListener — SIP 断开（v1.3.9+）
+
+```kotlin
+CallSDK.setOnSipDisconnectedListener {
+    // 曾注册成功后掉线，或主动 disconnectFromCCP
+}
+```
+
+首次注册失败仍走 `InitListener.onInitFailed` / CONNECT 失败路径，不会触发本回调。
+
+### 4.6 AudioRouteChangeListener — 音频路由监听器（v1.3.5+）
 
 ```kotlin
 interface AudioRouteChangeListener {
@@ -182,7 +195,7 @@ interface AudioRouteChangeListener {
 }
 ```
 
-### 4.6 外显号码相关监听器
+### 4.7 外显号码相关监听器
 
 ```kotlin
 interface NumberGroupListListener {
@@ -201,7 +214,7 @@ interface AgentConfigListener {
 }
 ```
 
-### 4.7 被踢下线监听器
+### 4.8 被踢下线监听器
 
 ```kotlin
 // 独立于 init，全局生效

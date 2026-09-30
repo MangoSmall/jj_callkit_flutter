@@ -40,6 +40,10 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private val callStateListener = object : CallStateListener {
+        override fun onCallCalling(callInfo: CallInfo) {
+            emit("callCalling", callInfoMap(callInfo))
+        }
+
         override fun onCallAlerting(callInfo: CallInfo) {
             emit("callAlerting", callInfoMap(callInfo))
         }
@@ -80,9 +84,6 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         methodChannel.setMethodCallHandler(this)
         eventChannel = EventChannel(messenger, "com.jj/callkit/events")
         eventChannel.setStreamHandler(this)
-        CallSDK.setOnKickedListener {
-            emit("kicked", emptyMap())
-        }
         registerPersistentListeners()
     }
 
@@ -93,7 +94,7 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         CallSDK.removeCallStateListener(callStateListener)
         CallSDK.setOnServerCallListener(null)
         CallSDK.setAudioRouteChangeListener(null)
-        // 热重载会拆 Engine，这里不要 CallSDK.release()。
+        // 热重载会拆 Engine，这里不要 CallSDK.release()，也不清 kicked / sipDisconnected。
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -114,6 +115,8 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
             "release" -> {
                 CallSDK.removeCallStateListener(callStateListener)
                 CallSDK.setOnServerCallListener(null)
+                CallSDK.setOnKickedListener(null)
+                CallSDK.setOnSipDisconnectedListener(null)
                 CallSDK.setAudioRouteChangeListener(null)
                 CallSDK.release()
                 result.success(null)
@@ -219,6 +222,12 @@ class JjCallkitPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
         CallSDK.addCallStateListener(callStateListener)
         CallSDK.setOnServerCallListener { info ->
             emit("serverCall", callInfoMap(info))
+        }
+        CallSDK.setOnKickedListener {
+            emit("kicked", emptyMap())
+        }
+        CallSDK.setOnSipDisconnectedListener {
+            emit("sipDisconnected", emptyMap())
         }
         CallSDK.setAudioRouteChangeListener(audioRouteChangeListener)
     }

@@ -1,7 +1,7 @@
 # JJCallKit Flutter 接入文档
 
-> 当前交付版本：**0.1.1**  
-> 内置原生 SDK：Android **callsdk 1.3.8**、iOS **JJCallKit 1.1.1**  
+> 当前交付版本：**0.1.2**  
+> 内置原生 SDK：Android **callsdk 1.3.9**、iOS **JJCallKit 1.1.1**  
 > Dart 入口：`package:jj_callkit/jj_callkit.dart` → `JJCallKit`
 
 ---
@@ -41,7 +41,7 @@ JJCallKit 是一套 Flutter VoIP 插件，用**同一套 Dart API** 同时对接
                         │ MethodChannel / EventChannel
           ┌─────────────┴─────────────┐
           ▼                           ▼
-   Android callsdk 1.3.8        iOS JJCallKit 1.1.1
+   Android callsdk 1.3.9        iOS JJCallKit 1.1.1
 ```
 
 ### 交付包目录
@@ -83,7 +83,7 @@ dependencies:
   jj_callkit:
     git:
       url: git@github.com:your-org/jj_callkit_flutter.git
-      ref: v0.1.1
+      ref: v0.1.2
 ```
 
 然后：
@@ -240,7 +240,7 @@ final speaker = await JJCallKit.isSpeakerOn();
 final route = await JJCallKit.getCurrentAudioRoute(); // receiver / speaker / bluetooth
 ```
 
-> Android（callsdk 1.3.8）可准确返回听筒 / 扬声器 / 蓝牙。iOS 目前主要按扬声器开关近似，不保证 `bluetooth`。
+> Android（callsdk 1.3.9）可准确返回听筒 / 扬声器 / 蓝牙。iOS 目前主要按扬声器开关近似，不保证 `bluetooth`。
 
 ### 5.5 外显号码
 
@@ -319,9 +319,9 @@ JJCallKit.events.listen((event) { ... });
 |------|------|
 | `SipConnectedEvent` | SIP 注册成功（同时 `init` 完成） |
 | `SipConnectFailedEvent` | 登录或 SIP 注册失败 |
-| `SipDisconnectedEvent` | SIP 断开 |
+| `SipDisconnectedEvent` | SIP 断开（曾注册成功后掉线；两端均有） |
 | `KickedEvent` | 账号在其他端登录 |
-| `CallCallingEvent` | 正在呼叫（可忽略） |
+| `CallCallingEvent` | 正在呼叫（SIP INVITE 已发出；可忽略） |
 | `CallAlertingEvent` | 对方振铃 |
 | `CallAnsweredEvent` | 已接通 |
 | `CallReleasedEvent` | 正常挂断；`hangupType` 0 主叫、1 被叫 |
@@ -407,10 +407,11 @@ Demo 覆盖：登录、外呼、挂断、静音、扬声器、DTMF、被踢、�
 
 | 版本 | 说明 |
 |------|------|
+| **0.1.2** | Android 内置 callsdk 升级至 **1.3.9**（补齐 `CallCallingEvent` / `SipDisconnectedEvent`，对齐 iOS） |
 | **0.1.1** | Android 内置 callsdk 升级至 **1.3.8**（限 PCMA/PCMU + TCP INVITE 兜底，修复部分 Wi‑Fi/NAT 下外呼失败） |
 | **0.1.0** | 首版：统一 Dart API；内置 callsdk 1.3.7 + JJCallKit 1.1.1；登录 / 外呼 / 媒体控制 / 外显号码 / 事件流 |
 
-原生 Android 详细变更见 Android 交付包《CallSDK_Android_接入文档》版本日志（1.3.8 / 1.3.7 等）。
+原生 Android 详细变更见 Android 交付包《CallSDK_Android_接入文档》版本日志（1.3.9 / 1.3.8 / 1.3.7 等）。
 
 ---
 

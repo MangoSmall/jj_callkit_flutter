@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Android 内置 callsdk 升级至 1.3.9：对齐 iOS，补发 `CallCallingEvent` / `SipDisconnectedEvent`。
+
 ## 0.1.1
 
 - Android 内置 callsdk 升级至 1.3.8（PCMA/PCMU + TCP INVITE 兜底，修复部分 Wi‑Fi/NAT 下外呼失败）。

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'jj_callkit'
-  s.version          = '0.1.0'
+  s.version          = '0.1.2'
   s.summary          = 'JJCallKit Flutter plugin'
   s.description      = <<-DESC
 Flutter plugin that wraps the JJ iOS and Android VoIP SDKs behind one Dart API.

@@ -10,9 +10,9 @@ JJCallKit.events.listen((event) { ... });
 |------|------|
 | `SipConnectedEvent` | SIP 注册成功。`init` 同时完成 |
 | `SipConnectFailedEvent` | 登录或 SIP 注册失败 |
-| `SipDisconnectedEvent` | SIP 断开 |
+| `SipDisconnectedEvent` | SIP 断开（曾注册成功后掉线；两端均有） |
 | `KickedEvent` | 账号在其他端登录 |
-| `CallCallingEvent` | 正在呼叫。可以不处理 |
+| `CallCallingEvent` | 正在呼叫（SIP INVITE 已发出；可忽略） |
 | `CallAlertingEvent` | 对方振铃 |
 | `CallAnsweredEvent` | 已接通 |
 | `CallReleasedEvent` | 正常挂断。`hangupType` 0 主叫、1 被叫 |
