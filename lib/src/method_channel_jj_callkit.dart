@@ -9,8 +9,12 @@ class MethodChannelJjCallkit extends JjCallkitPlatform {
   MethodChannelJjCallkit() {
     _events.receiveBroadcastStream().listen(
       (event) {
-        if (event is Map) {
-          _controller.add(CallEvent.fromMap(Map<String, dynamic>.from(event)));
+        final map = asStringKeyMap(event);
+        if (map != null) {
+          // payload 也做一层 Map 转换，兼容鸿蒙编解码出来的嵌套 Map
+          final payload = asStringKeyMap(map['payload']) ?? <String, dynamic>{};
+          map['payload'] = payload;
+          _controller.add(CallEvent.fromMap(map));
         }
       },
       onError: _controller.addError,

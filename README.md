@@ -4,12 +4,15 @@ Flutter VoIP 插件**开发仓库**。iOS / Android SDK 同事一起维护，把
 
 | 项 | 版本 |
 |----|------|
-| 插件 | 0.1.3 |
+| 插件 | 0.2.0 |
 | Android SDK | callsdk 1.3.9（arm64-v8a） |
 | iOS SDK | JJCallKit 1.1.1 |
-| Flutter | 3.16+ |
+| HarmonyOS SDK | @useasy/callsdk-harmony 1.0.0 |
+| Flutter（Android/iOS） | 官方 Flutter 3.16+ |
+| Flutter（鸿蒙） | Flutter for OpenHarmony（见 `~/sdk/flutter_ohos`） |
 | iOS | 12.4+ |
 | Android minSdk | 23 |
+| HarmonyOS | compatibleSdk ≥ 6.0.2(22)，arm64 真机 |
 
 通道名两端必须一致：
 
@@ -29,7 +32,10 @@ jj_callkit_flutter/
 ├── ios/                 # iOS 桥接 + xcframework（iOS 同事主改）
 │   ├── Frameworks/      # JJCallKit.xcframework
 │   └── Classes/JjCallkitPlugin.swift
-├── example/             # 真机联调示例
+├── ohos/                # 鸿蒙桥接 + CallSDK HAR（ohos 同事主改）
+│   ├── har/callsdk/     # @useasy/callsdk-harmony
+│   └── src/.../JjCallkitPlugin.ets
+├── example/             # 真机联调示例（含 example/ohos）
 ├── doc/                 # 插件对外使用说明
 ├── docs/                # 桥接开发文档、原生 API 对照
 └── dist/FlutterCallSDK/ # 对外交付包（接入文档 + 插件快照 + Demo）
@@ -37,21 +43,28 @@ jj_callkit_flutter/
 
 - **Android**：改 `android/`，对照 [`docs/Android_Flutter桥接开发文档.md`](docs/Android_Flutter桥接开发文档.md) 与 [`docs/CallSDK_Android_API.md`](docs/CallSDK_Android_API.md)。
 - **iOS**：改 `ios/`，对照 [`docs/iOS_Flutter桥接开发文档.md`](docs/iOS_Flutter桥接开发文档.md) 与 [`docs/JJCallKit_iOS_API.md`](docs/JJCallKit_iOS_API.md)。
-- **协议 / 事件 / 错误码**：优先看 [`docs/Flutter插件实施计划.md`](docs/Flutter插件实施计划.md) 和 `lib/`，两端 MethodChannel 参数与 EventChannel payload 必须对齐。
+- **HarmonyOS**：改 `ohos/`，对照 [`docs/HarmonyOS_Flutter桥接开发文档.md`](docs/HarmonyOS_Flutter桥接开发文档.md)；联调使用 `flutter-ohos`。
+- **协议 / 事件 / 错误码**：优先看 [`docs/Flutter插件实施计划.md`](docs/Flutter插件实施计划.md) 和 `lib/`，三端 MethodChannel 参数与 EventChannel payload 必须对齐。
 - **对外交付**：见 [`dist/FlutterCallSDK/`](dist/FlutterCallSDK/)，主文档为 [`JJCallKit_Flutter_接入文档.md`](dist/FlutterCallSDK/JJCallKit_Flutter_接入文档.md)。客户包 README 只保留目录与快速开始；发版同步命令如下（在仓库根执行）：
 
 ```bash
 rsync -a --delete \
   --exclude '.git' --exclude 'docs' --exclude 'example' --exclude 'test' --exclude 'dist' \
   --exclude '.dart_tool' --exclude 'build' --exclude '**/Pods' --exclude '**/.symlinks' \
+  --exclude '**/.cxx' --exclude '**/.hvigor' --exclude '**/oh_modules' --exclude '**/node_modules' \
   ./ dist/FlutterCallSDK/jj_callkit/
+
+# 覆盖后把 jj_callkit/README.md 恢复为客户精简版（勿用本仓库开发 README）
 
 rsync -a --delete \
   --exclude '.dart_tool' --exclude 'build' --exclude '**/Pods' --exclude '**/.symlinks' \
+  --exclude '**/.cxx' --exclude '**/.hvigor' --exclude '**/oh_modules' --exclude '**/node_modules' \
   example/ dist/FlutterCallSDK/jj_callkit-demo/
 
-# Demo 依赖：jj_callkit-demo/pubspec.yaml → path: ../jj_callkit
-# 同步后勿把本段维护说明写回客户包 README
+# 同步后务必：
+# 1) jj_callkit-demo/pubspec.yaml → path: ../jj_callkit（example 是 path: ../，不能原样拷）
+# 2) 恢复 jj_callkit/README.md 为客户精简版
+# 3) 更新 FlutterCallSDK/ 根 README 与接入文档版本号
 ```
 
 
@@ -67,6 +80,7 @@ flutter run   # 建议 arm64 真机；Android 当前包无 x86
 
 - Android：替换 `android/repo/com/useasy/callsdk/<version>/` 下的 aar/pom，并改 `android/build.gradle` 里的版本号
 - iOS：替换 `ios/Frameworks/JJCallKit.xcframework`，必要时改 `ios/jj_callkit.podspec`
+- HarmonyOS：rsync `easyapp/callsdk-harmony/callsdk/` → `ohos/har/callsdk/`
 
 ## 文档索引
 
@@ -74,6 +88,7 @@ flutter run   # 建议 arm64 真机；Android 当前包无 x86
 
 - [Android Flutter 桥接](docs/Android_Flutter桥接开发文档.md)
 - [iOS Flutter 桥接](docs/iOS_Flutter桥接开发文档.md)
+- [HarmonyOS Flutter 桥接](docs/HarmonyOS_Flutter桥接开发文档.md)
 - [CallSDK Android API](docs/CallSDK_Android_API.md)
 - [JJCallKit iOS API](docs/JJCallKit_iOS_API.md)
 - [插件实施计划](docs/Flutter插件实施计划.md)
@@ -82,6 +97,7 @@ flutter run   # 建议 arm64 真机；Android 当前包无 x86
 
 - [Android 集成](doc/integration_android.md)
 - [iOS 集成](doc/integration_ios.md)
+- [HarmonyOS 集成](doc/integration_ohos.md)
 - [API](doc/api_reference.md)
 - [事件](doc/events.md)
 - [错误码](doc/error_codes.md)

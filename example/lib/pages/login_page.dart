@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:jj_callkit/jj_callkit.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,6 +19,8 @@ class _LoginPageState extends State<LoginPage> {
   final _password = TextEditingController();
   CallEnvironment _environment = CallEnvironment.production;
   bool _busy = false;
+
+  bool get _isOhos => Platform.operatingSystem == 'ohos';
 
   @override
   void initState() {
@@ -41,6 +45,17 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  Future<void> _ensureMicrophone() async {
+    // permission_handler 无鸿蒙实现；拨号时由 CallSDK 原生申请麦克风。
+    if (_isOhos) {
+      return;
+    }
+    final mic = await Permission.microphone.request();
+    if (!mic.isGranted) {
+      throw const JJCallException(-301, '需要麦克风权限才能通话');
+    }
+  }
+
   Future<void> _login() async {
     final username = _username.text.trim();
     final password = _password.text;
@@ -48,18 +63,14 @@ class _LoginPageState extends State<LoginPage> {
       _toast('请输入账号和密码');
       return;
     }
-    await LoginCache.save(
-      username: username,
-      password: password,
-      environment: _environment,
-    );
-    final mic = await Permission.microphone.request();
-    if (!mic.isGranted) {
-      _toast('需要麦克风权限才能通话');
-      return;
-    }
     setState(() => _busy = true);
     try {
+      await LoginCache.save(
+        username: username,
+        password: password,
+        environment: _environment,
+      );
+      await _ensureMicrophone();
       await JJCallKit.init(CallConfig(
         username: username,
         password: password,
@@ -75,6 +86,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.of(context).pushReplacementNamed(DialPage.route);
     } on JJCallException catch (error) {
       _toast('${error.code} ${error.message}');
+    } catch (error) {
+      _toast('$error');
     } finally {
       if (mounted) setState(() => _busy = false);
     }

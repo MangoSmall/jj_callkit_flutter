@@ -1,0 +1,18 @@
+{
+  "apiType": "stageMode",
+  "buildOption": {
+    "externalNativeOptions": {
+      "path": "./src/main/cpp/CMakeLists.txt",
+      "abiFilters": ["arm64-v8a"]
+    },
+    "nativeLib": {
+      "filter": {
+        // 将 libs 内 libpjsua2_ohos.so 与构建出的 libcallsdk_entry.so 一并打进 HAR/HAP
+        "enableOverride": true
+      }
+    }
+  },
+  "targets": [
+    { "name": "default" }
+  ]
+}

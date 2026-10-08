@@ -1,14 +1,14 @@
 # JJCallKit Flutter SDK
 
-当前版本：**0.1.3**  
-内置原生 SDK：Android callsdk **1.3.9**、iOS JJCallKit **1.1.1**
+当前版本：**0.2.0**  
+内置原生 SDK：Android callsdk **1.3.9**、iOS JJCallKit **1.1.1**、HarmonyOS **@useasy/callsdk-harmony 1.0.0**
 
 ## 目录
 
 | 内容 | 说明 |
 |------|------|
 | `JJCallKit_Flutter_接入文档.md` | 接入说明（请先读这份） |
-| `jj_callkit/` | Flutter 插件（已内置双端原生 SDK） |
+| `jj_callkit/` | Flutter 插件（已内置三端原生 SDK） |
 | `jj_callkit-demo/` | 可运行示例工程 |
 
 ## 快速开始
@@ -24,4 +24,5 @@ flutter run
 ```
 
 > Android 请用 **arm64 真机**验收（当前 so 不含 x86）。  
-> 业务工程只需依赖本插件，不要再单独集成 AAR / xcframework。
+> 鸿蒙请用 **Flutter for OpenHarmony** + arm64 真机，并先在 DevEco 配置调试签名。  
+> 业务工程只需依赖本插件，不要再单独集成 AAR / xcframework / HAR。

@@ -25,6 +25,9 @@ class _CallPageState extends State<CallPage> {
   void initState() {
     super.initState();
     _call = widget.call;
+    if (_call.state == CallState.answered) {
+      _answeredAt = DateTime.now();
+    }
     _events = JJCallKit.events.listen(_onEvent);
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted && _answeredAt != null) setState(() {});
@@ -41,15 +44,23 @@ class _CallPageState extends State<CallPage> {
   void _onEvent(CallEvent event) {
     switch (event) {
       case CallAlertingEvent(:final call):
+        setState(() => _call = call);
       case CallAnsweredEvent(:final call):
+        setState(() {
+          _call = call;
+          _answeredAt ??= DateTime.now();
+        });
       case CallCallingEvent(:final call):
         setState(() {
           _call = call;
-          if (event is CallAnsweredEvent) {
+          if (call.state == CallState.answered) {
             _answeredAt ??= DateTime.now();
           }
         });
-      case CallReleasedEvent():
+      case CallReleasedEvent(:final hangupType):
+        if (hangupType != 0) {
+          _toast('对方已挂断');
+        }
         if (mounted) Navigator.of(context).maybePop();
       case CallFailedEvent(:final errorMsg, :final errorCode):
         _toast(errorMsg.isEmpty ? JJCallKit.errorDescription(errorCode) : errorMsg);

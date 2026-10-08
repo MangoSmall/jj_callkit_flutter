@@ -1,13 +1,13 @@
 # JJCallKit Flutter 接入文档
 
-> 版本 **0.1.3** · Android callsdk **1.3.9** · iOS JJCallKit **1.1.1**  
+> 版本 **0.2.0** · Android callsdk **1.3.9** · iOS JJCallKit **1.1.1** · HarmonyOS callsdk-harmony **1.0.0**  
 > Dart 入口：`package:jj_callkit/jj_callkit.dart` → `JJCallKit`
 
 ---
 
 ## 1. 概述
 
-JJCallKit 是 Flutter VoIP 插件，Android / iOS 共用同一套 Dart API。业务工程只依赖本插件即可，**不要**再单独集成 `callsdk-*.aar` 或 `JJCallKit.xcframework`，也不要自己再建 CallKit / MethodChannel。
+JJCallKit 是 Flutter VoIP 插件，Android / iOS / HarmonyOS 共用同一套 Dart API。业务工程只依赖本插件即可，**不要**再单独集成 `callsdk-*.aar`、`JJCallKit.xcframework` 或鸿蒙 CallSDK HAR，也不要自己再建 CallKit / MethodChannel。
 
 能力概览：
 
@@ -22,7 +22,7 @@ JJCallKit 是 Flutter VoIP 插件，Android / iOS 共用同一套 Dart API。业
 ```
 FlutterCallSDK/
 ├── JJCallKit_Flutter_接入文档.md
-├── jj_callkit/              # 插件（含两端原生 SDK）
+├── jj_callkit/              # 插件（含三端原生 SDK）
 └── jj_callkit-demo/         # 示例工程
 ```
 
@@ -37,7 +37,7 @@ FlutterCallSDK/
 | 通话账号 | 由业务侧发放的 SIP / 座席账号 |
 | 密码 | 明文 `password`，或 RSA 加密后的 `passwordPk`（二选一） |
 | 环境 | 测试用 `CallEnvironment.debug`，正式用 `CallEnvironment.production` |
-| 真机 | Android 需 arm64；iOS 锁屏 / CallKit 绿条需真机 |
+| 真机 | Android / 鸿蒙需 arm64；iOS 锁屏 / CallKit 绿条需真机 |
 | 麦克风 | 登录或拨号前申请运行时权限 |
 
 账号与环境以你们业务后台配置为准，本文不涉及开户流程。
@@ -48,9 +48,11 @@ FlutterCallSDK/
 
 | 项 | 要求 |
 |----|------|
-| Flutter | 3.38+（Dart ≥ 3.10.3） |
+| Flutter（Android / iOS） | 官方 Flutter 3.16+（Dart ≥ 3.8） |
+| Flutter（鸿蒙） | **Flutter for OpenHarmony**（与官方 Flutter 分开安装） |
 | Android | minSdk 23；**arm64-v8a 真机**（当前 so 不含 x86） |
 | iOS | 12.4+；锁屏 / CallKit 需真机 |
+| HarmonyOS | compatibleSdk ≥ 6.0.2(22)；**arm64 真机**；DevEco 调试签名 |
 | 权限 | 麦克风；Android 12+ 使用蓝牙耳机时还需 `BLUETOOTH_CONNECT` |
 
 ---
@@ -69,7 +71,7 @@ dependencies:
 flutter pub get
 ```
 
-不要把 `callsdk-*.aar` 再拷进宿主 `android/libs`，也不要在 iOS 工程里再拖一份 `JJCallKit.xcframework`。
+不要把 `callsdk-*.aar` 再拷进宿主 `android/libs`，不要在 iOS 工程里再拖一份 `JJCallKit.xcframework`，也不要再单独集成鸿蒙 CallSDK HAR。
 
 ---
 
@@ -114,6 +116,23 @@ config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
 ```
 
 插件 pod 为 static，内含动态 Framework。真机启动若报找不到 `JJCallKit`，检查 `[CP] Embed Pods Frameworks` 是否已 embed（可对照 Demo 执行 `pod install`）。
+
+### 5.3 HarmonyOS
+
+1. 使用 **Flutter for OpenHarmony** 创建 / 维护宿主 `ohos/`（`flutter create --platforms ohos .`）。
+2. `ohos/entry/src/main/module.json5` 声明麦克风、网络等权限，Ability 增加 `backgroundModes: ["voip"]`（对照 Demo `ohos`）。
+3. 麦克风由 CallSDK 在拨号时原生申请；`EntryAbility` 需注入 `AppStorage.setOrCreate('uiAbilityContext', this.context)`。  
+   **不要**在鸿蒙上使用 `permission_handler`（无 ohos 实现会卡住）。
+4. 首次安装需在 DevEco Studio 为宿主 ohos 工程配置调试签名。
+
+更细的步骤见插件内 `doc/integration_ohos.md`。
+
+平台差异：
+
+| 项 | 说明 |
+|----|------|
+| `CallCallingEvent` | 鸿蒙原生无 `onCallCalling`；插件在 `makeCall` 成功时补发 |
+| `SipDisconnectedEvent` | 鸿蒙 CallSDK 暂无对应监听，本端暂不发出 |
 
 ---
 
@@ -379,9 +398,9 @@ await JJCallKit.updateNumberGroup(id: groupId);
 |------|------|
 | `SipConnectedEvent` | SIP 注册成功（同时 `init` 完成） |
 | `SipConnectFailedEvent` | 登录或 SIP 注册失败 |
-| `SipDisconnectedEvent` | 曾注册成功后 SIP 掉线 |
+| `SipDisconnectedEvent` | 曾注册成功后 SIP 掉线（鸿蒙暂无） |
 | `KickedEvent` | 账号在其他端登录 |
-| `CallCallingEvent` | 正在呼叫（可忽略） |
+| `CallCallingEvent` | 正在呼叫（鸿蒙在 makeCall 成功时补发） |
 | `CallAlertingEvent` | 对方振铃 |
 | `CallAnsweredEvent` | 已接通 |
 | `CallReleasedEvent` | 正常挂断；`hangupType` 0 主叫、1 被叫 |
@@ -418,10 +437,11 @@ await JJCallKit.updateNumberGroup(id: groupId);
 
 ## 12. 上线前检查清单
 
-- [ ] `pubspec` 只依赖 `jj_callkit`，宿主未再引入 AAR / xcframework
+- [ ] `pubspec` 只依赖 `jj_callkit`，宿主未再引入 AAR / xcframework / HAR
 - [ ] Android 在 arm64 真机验证；未依赖 x86 模拟器验收
 - [ ] Android 运行时已申请麦克风（及需要时的蓝牙权限）
 - [ ] iOS 已配置 `NSMicrophoneUsageDescription` 与 Background Modes → Audio
+- [ ] 鸿蒙使用 Flutter for OpenHarmony，ohos 已声明麦克风与 `backgroundModes: voip`，并配置调试签名
 - [ ] 未在业务侧自行创建 `CXProvider`
 - [ ] `JJCallKit.events` 在 App 启动后全局订阅，能处理服务端来电 / 被踢 / SIP 断线
 - [ ] `init` 成功后再拨号；`release` 未放在页面 `dispose`
@@ -472,4 +492,5 @@ Future 会等到 SIP 注册成功。失败会抛异常并收到 `SipConnectFaile
 
 | 版本 | 说明 |
 |------|------|
+| **0.2.0** | 新增 HarmonyOS 桥接（内置 callsdk-harmony）；Android / iOS / 鸿蒙共用 Dart API |
 | **0.1.3** | 统一 Dart API；内置 Android callsdk 1.3.9、iOS JJCallKit 1.1.1；登录 / 外呼 / 服务端来电 / 媒体控制 / 外显号码 / 事件流 |

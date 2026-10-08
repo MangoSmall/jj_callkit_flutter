@@ -1,0 +1,11 @@
+{
+  "name": "jj_callkit",
+  "version": "0.2.0",
+  "description": "JJCallKit Flutter plugin for HarmonyOS",
+  "main": "index.ets",
+  "author": "JJ",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@useasy/callsdk-harmony": "file:./har/callsdk"
+  }
+}

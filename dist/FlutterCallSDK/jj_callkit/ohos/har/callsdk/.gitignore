@@ -1,0 +1,8 @@
+/build
+/.cxx
+/.hvigor
+/oh_modules
+/node_modules
+/local.properties
+/BuildProfile.ets
+/oh-package-lock.json5

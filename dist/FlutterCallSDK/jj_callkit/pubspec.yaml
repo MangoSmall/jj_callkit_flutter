@@ -1,10 +1,11 @@
 name: jj_callkit
-description: "Flutter VoIP SDK。一套 Dart API 同时接 iOS JJCallKit 和 Android CallSDK。"
-version: 0.1.3
+description: "Flutter VoIP SDK。一套 Dart API 同时接 Android CallSDK、iOS JJCallKit 与鸿蒙 CallSDK。"
+version: 0.2.0
 homepage:
 
 environment:
-  sdk: ^3.10.3
+  # 兼容官方 Flutter（Dart 3.10+）与 Flutter for OpenHarmony（当前 Dart 3.8.x）
+  sdk: '>=3.8.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
@@ -38,6 +39,8 @@ flutter:
         package: com.jj.jj_callkit
         pluginClass: JjCallkitPlugin
       ios:
+        pluginClass: JjCallkitPlugin
+      ohos:
         pluginClass: JjCallkitPlugin
 
   # To add assets to your plugin package, add an assets section, like this:

@@ -1,0 +1,9 @@
+{
+  "name": "@useasy/callsdk-harmony",
+  "version": "1.0.0",
+  "description": "Useasy Call SDK for HarmonyOS NEXT",
+  "main": "Index.ets",
+  "author": "useasy",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}
