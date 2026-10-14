@@ -32,7 +32,8 @@ export interface CallEventHandler {
   onCallReleased(callInfo: CallInfo, hangupType: number): void;
   onCallFailed(callInfo: CallInfo, errorCode: number, errorMsg: string): void;
   onServerCallIncoming(callInfo: CallInfo): void;
-  onDtmfReceived?(callInfo: CallInfo, dtmf: string): void;
+  /** 必选：ArkTS 对可选方法做 ?. 调用可能静默丢事件 */
+  onDtmfReceived(callInfo: CallInfo, dtmf: string): void;
 }
 
 export interface RemoteCallEventPayload {
@@ -321,7 +322,7 @@ export class CallManager {
       state: cur.state,
       startTime: cur.startTime
     };
-    this.eventHandler?.onDtmfReceived?.(info, dtmf);
+    this.eventHandler?.onDtmfReceived(info, dtmf);
   }
 
   private finishReleased(callId: string, hangupType: number): void {

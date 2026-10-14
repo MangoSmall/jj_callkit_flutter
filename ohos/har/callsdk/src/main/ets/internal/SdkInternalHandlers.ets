@@ -1,8 +1,9 @@
-import { CallEventHandler } from '../manager/CallManager';
+import { CallEventHandler, CallManager } from '../manager/CallManager';
 import { LoginListener } from '../manager/LoginManager';
 import { SocketKickHandler } from '../manager/SocketManager';
 import { CallInfo } from '../model/CallInfo';
 import { CallStateListener, InitListener } from '../listener/SdkListeners';
+import { SdkLogger } from '../utils/SdkLogger';
 
 export class SdkCallEventHandler implements CallEventHandler {
   private readonly notifyCallState: (action: (l: CallStateListener) => void) => void;
@@ -79,22 +80,27 @@ export class SdkKickHandler implements SocketKickHandler {
 
 export class SdkLoginBridge implements LoginListener {
   private readonly initListener: InitListener;
-  private readonly onLoginSuccess: () => void;
   private readonly postToMain: (block: () => void) => void;
 
   constructor(
     initListener: InitListener,
-    onLoginSuccess: () => void,
     postToMain: (block: () => void) => void
   ) {
     this.initListener = initListener;
-    this.onLoginSuccess = onLoginSuccess;
     this.postToMain = postToMain;
   }
 
   onSuccess(): void {
-    this.onLoginSuccess();
-    this.postToMain(() => { this.initListener.onInitSuccess(); });
+    // 与文档一致：init Future 等到 SIP 预注册完成（失败仅打日志，不挡登录成功）
+    void (async () => {
+      try {
+        await CallManager.prepareSipForIncoming();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        SdkLogger.warn('SdkLoginBridge', `prepareSipForIncoming after login: ${msg}`);
+      }
+      this.postToMain(() => { this.initListener.onInitSuccess(); });
+    })();
   }
 
   onFailed(errorCode: number, errorMsg: string): void {

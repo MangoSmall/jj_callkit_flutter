@@ -1,8 +1,9 @@
-import { CallEventHandler } from '../manager/CallManager';
+import { CallEventHandler, CallManager } from '../manager/CallManager';
 import { LoginListener } from '../manager/LoginManager';
 import { SocketKickHandler } from '../manager/SocketManager';
 import { CallInfo } from '../model/CallInfo';
 import { CallStateListener, InitListener } from '../listener/SdkListeners';
+import { SdkLogger } from '../utils/SdkLogger';
 
 export class SdkCallEventHandler implements CallEventHandler {
   private readonly notifyCallState: (action: (l: CallStateListener) => void) => void;
@@ -27,22 +28,30 @@ export class SdkCallEventHandler implements CallEventHandler {
 
   onCallAlerting(callInfo: CallInfo): void {
     this.setCurrentCall(callInfo);
-    this.notifyCallState((l: CallStateListener) => { l.onCallAlerting?.(callInfo); });
+    this.notifyCallState((l: CallStateListener) => {
+      l.onCallAlerting(callInfo);
+    });
   }
 
   onCallAnswered(callInfo: CallInfo): void {
     this.setCurrentCall(callInfo);
-    this.notifyCallState((l: CallStateListener) => { l.onCallAnswered?.(callInfo); });
+    this.notifyCallState((l: CallStateListener) => {
+      l.onCallAnswered(callInfo);
+    });
   }
 
   onCallReleased(callInfo: CallInfo, hangupType: number): void {
     this.clearCurrentCall();
-    this.notifyCallState((l: CallStateListener) => { l.onCallReleased?.(callInfo, hangupType); });
+    this.notifyCallState((l: CallStateListener) => {
+      l.onCallReleased(callInfo, hangupType);
+    });
   }
 
   onCallFailed(callInfo: CallInfo, errorCode: number, errorMsg: string): void {
     this.clearCurrentCall();
-    this.notifyCallState((l: CallStateListener) => { l.onCallFailed?.(callInfo, errorCode, errorMsg); });
+    this.notifyCallState((l: CallStateListener) => {
+      l.onCallFailed(callInfo, errorCode, errorMsg);
+    });
   }
 
   onServerCallIncoming(callInfo: CallInfo): void {
@@ -51,7 +60,9 @@ export class SdkCallEventHandler implements CallEventHandler {
   }
 
   onDtmfReceived(callInfo: CallInfo, dtmf: string): void {
-    this.notifyCallState((l: CallStateListener) => { l.onDtmfReceived?.(callInfo, dtmf); });
+    this.notifyCallState((l: CallStateListener) => {
+      l.onDtmfReceived(callInfo, dtmf);
+    });
   }
 }
 
@@ -69,22 +80,27 @@ export class SdkKickHandler implements SocketKickHandler {
 
 export class SdkLoginBridge implements LoginListener {
   private readonly initListener: InitListener;
-  private readonly onLoginSuccess: () => void;
   private readonly postToMain: (block: () => void) => void;
 
   constructor(
     initListener: InitListener,
-    onLoginSuccess: () => void,
     postToMain: (block: () => void) => void
   ) {
     this.initListener = initListener;
-    this.onLoginSuccess = onLoginSuccess;
     this.postToMain = postToMain;
   }
 
   onSuccess(): void {
-    this.onLoginSuccess();
-    this.postToMain(() => { this.initListener.onInitSuccess(); });
+    // 与文档一致：init Future 等到 SIP 预注册完成（失败仅打日志，不挡登录成功）
+    void (async () => {
+      try {
+        await CallManager.prepareSipForIncoming();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        SdkLogger.warn('SdkLoginBridge', `prepareSipForIncoming after login: ${msg}`);
+      }
+      this.postToMain(() => { this.initListener.onInitSuccess(); });
+    })();
   }
 
   onFailed(errorCode: number, errorMsg: string): void {

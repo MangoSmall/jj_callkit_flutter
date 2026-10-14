@@ -34,14 +34,22 @@ export class LoginManager {
     listener: LoginListener
   ): Promise<void> {
     try {
-      const plainPassword = password ?? passwordPk ?? '';
-      if (plainPassword.length === 0) {
+      const trimmedUsername = username.trim();
+      const encrypted = passwordPk !== null ? passwordPk.trim() : '';
+      const plain = password !== null ? password.trim() : '';
+      // 与 Android CallSdkHttpManager.loginInner 对齐：有 passwordPk 则视为已加密密文，跳过取公钥
+      if (encrypted.length > 0) {
+        await LoginManager.runLoginChainWithEncrypted(trimmedUsername, encrypted);
+        if (plain.length > 0) {
+          LoginManager.saveCredentials(trimmedUsername, plain);
+        }
+      } else if (plain.length > 0) {
+        await LoginManager.runLoginChain(trimmedUsername, plain);
+        LoginManager.saveCredentials(trimmedUsername, plain);
+      } else {
         listener.onFailed(ErrorCode.PASSWORD_EMPTY, ErrorCode.getErrorMessage(ErrorCode.PASSWORD_EMPTY));
         return;
       }
-      const trimmedUsername = username.trim();
-      await LoginManager.runLoginChain(trimmedUsername, plainPassword);
-      LoginManager.saveCredentials(trimmedUsername, plainPassword);
       LoginManager.loginInfoCache = LoginManager.readLoginInfoFromPrefs();
       SocketManager.getInstance().connect();
       listener.onSuccess();
@@ -124,6 +132,16 @@ export class LoginManager {
     const pk = await LoginManager.stepLoginPre();
     const enc = await CryptoUtils.parsePasswordWithServerPk(pk, plainPassword);
     await LoginManager.stepLoginPost(loginName, enc);
+    const loginInfoBody = await LoginManager.stepLoginInfo();
+    LoginManager.persistLoginInfo(loginInfoBody);
+    await LoginManager.stepRefreshWsToken();
+  }
+
+  /** passwordPk 已是服务端约定密文，跳过 loginPre / 本地再加密 */
+  private static async runLoginChainWithEncrypted(loginName: string, encryptedPassword: string): Promise<void> {
+    const accountName = LoginManager.extractAccountName(loginName);
+    await LoginManager.stepCloudConfig(accountName);
+    await LoginManager.stepLoginPost(loginName, encryptedPassword);
     const loginInfoBody = await LoginManager.stepLoginInfo();
     LoginManager.persistLoginInfo(loginInfoBody);
     await LoginManager.stepRefreshWsToken();

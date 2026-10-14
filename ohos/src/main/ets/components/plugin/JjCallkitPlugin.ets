@@ -35,30 +35,6 @@ import {
   AudioRouteChangeListener,
 } from '@useasy/callsdk-harmony';
 
-class PageInfoMap {
-  pageSize: number | null;
-  pageNumber: number | null;
-  totalPage: number | null;
-  total: number | null;
-
-  constructor(pageSize: number | null, pageNumber: number | null, totalPage: number | null, total: number | null) {
-    this.pageSize = pageSize;
-    this.pageNumber = pageNumber;
-    this.totalPage = totalPage;
-    this.total = total;
-  }
-}
-
-class NumberGroupListMap {
-  list: HashMap<string, Object | null>[];
-  pageInfo: PageInfoMap;
-
-  constructor(list: HashMap<string, Object | null>[], pageInfo: PageInfoMap) {
-    this.list = list;
-    this.pageInfo = pageInfo;
-  }
-}
-
 /**
  * HarmonyOS 桥接：通道名与 Android/iOS 一致。
  * MethodChannel: com.jj/callkit/methods
@@ -161,14 +137,14 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
         break;
       case 'getCurrentCallInfo': {
         const info = CallSDK.getCurrentCallInfo();
-        result.success(info !== null ? this.callInfoMap(info) : null);
+        result.success(info !== null ? this.hashMapToCodecMap(this.callInfoMap(info)) : null);
         break;
       }
       case 'canMakeCall':
         result.success(this.canMakeCall());
         break;
       case 'getLoginInfo':
-        result.success(this.loginInfoMap());
+        result.success(this.hashMapToCodecMap(this.loginInfoMap()));
         break;
       case 'getAgentConfig':
         this.handleAgentConfig(result);
@@ -240,6 +216,27 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
     return map;
   }
 
+  /** MethodChannel 结果必须用 Map/Array，自定义 class 经 codec 会变成空对象 */
+  hashMapToCodecMap(src: HashMap<string, Object | null>): Map<string, Object> {
+    const out = new Map<string, Object>();
+    src.forEach((value: Object | null, key: string) => {
+      if (value === null || value === undefined) {
+        out.set(key, '');
+      } else {
+        out.set(key, value);
+      }
+    });
+    return out;
+  }
+
+  hashMapListToCodec(list: HashMap<string, Object | null>[]): Array<Map<string, Object>> {
+    const out: Array<Map<string, Object>> = [];
+    for (let i = 0; i < list.length; i++) {
+      out.push(this.hashMapToCodecMap(list[i]));
+    }
+    return out;
+  }
+
   private handleInit(call: MethodCall, result: MethodResult): void {
     if (this.pendingInit !== null) {
       result.error('-1', 'init 正在进行', null);
@@ -277,6 +274,8 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
   }
 
   completeInitSuccess(): void {
+    // init 完成后再次挂载，避免首次 register 落在 initialized 之前被丢掉
+    this.registerPersistentListeners();
     this.emit('sipConnected', new HashMap<string, Object | null>());
     const pending = this.pendingInit;
     this.pendingInit = null;
@@ -572,7 +571,7 @@ class PluginMakeCallCallback implements MakeCallCallback {
     }
     this.replied = true;
     this.plugin.emit('callCalling', this.plugin.callInfoMap(callInfo));
-    this.result.success(this.plugin.callInfoMap(callInfo));
+    this.result.success(this.plugin.hashMapToCodecMap(this.plugin.callInfoMap(callInfo)));
   }
 
   onFailed(errorCode: number, errorMsg: string): void {
@@ -597,7 +596,7 @@ class PluginAgentConfigListener implements AgentConfigListener {
 
   onSuccess(config: AgentConfig | null): void {
     if (this.returnConfig) {
-      this.result.success(this.plugin.agentConfigMap(config));
+      this.result.success(this.plugin.hashMapToCodecMap(this.plugin.agentConfigMap(config)));
     } else {
       this.result.success(null);
     }
@@ -623,7 +622,7 @@ class PluginDisplayNumberListener implements DisplayNumberListListener {
     for (let i = 0; i < src.length; i++) {
       list.push(this.plugin.displayNumberMap(src[i]));
     }
-    this.result.success(list);
+    this.result.success(this.plugin.hashMapListToCodec(list));
   }
 
   onFailed(errorMsg: string | null): void {
@@ -647,13 +646,15 @@ class PluginNumberGroupListener implements NumberGroupListListener {
       groups.push(this.plugin.numberGroupMap(src[i]));
     }
     const page = response?.page;
-    const pageInfo = new PageInfoMap(
-      page?.pageSize ?? null,
-      page?.pageNumber ?? null,
-      page?.totalPage ?? null,
-      page?.total ?? null,
-    );
-    this.result.success(new NumberGroupListMap(groups, pageInfo));
+    const pageInfo = new Map<string, Object>();
+    pageInfo.set('pageSize', page?.pageSize ?? 0);
+    pageInfo.set('pageNumber', page?.pageNumber ?? 0);
+    pageInfo.set('totalPage', page?.totalPage ?? 0);
+    pageInfo.set('total', page?.total ?? 0);
+    const out = new Map<string, Object>();
+    out.set('list', this.plugin.hashMapListToCodec(groups));
+    out.set('pageInfo', pageInfo);
+    this.result.success(out);
   }
 
   onFailed(errorMsg: string | null): void {

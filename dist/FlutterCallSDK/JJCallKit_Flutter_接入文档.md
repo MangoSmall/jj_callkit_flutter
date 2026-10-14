@@ -133,6 +133,8 @@ config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
 |----|------|
 | `CallCallingEvent` | 鸿蒙原生无 `onCallCalling`；插件在 `makeCall` 成功时补发 |
 | `SipDisconnectedEvent` | 鸿蒙 CallSDK 暂无对应监听，本端暂不发出 |
+| `init` | 登录成功后会等待 SIP 预注册再结束 Future；预注册失败仅打日志，仍视为成功 |
+| 账号缓存 / 麦克风 | 勿用官方 `shared_preferences` / `permission_handler`（无 ohos）；麦克风见上文 EntryAbility 注入 |
 
 ---
 

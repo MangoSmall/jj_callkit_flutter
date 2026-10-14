@@ -11,13 +11,17 @@ export interface MakeCallCallback {
   onFailed(errorCode: number, errorMsg: string): void;
 }
 
-/** 对齐 Android CallStateListener：默认空实现用可选方法 */
+/**
+ * 对齐 Android CallStateListener。
+ * 方法必须为必选：ArkTS 对 interface 可选方法做 `l.onXxx?.()` / `l.onXxx !== undefined`
+ * 时，实现类上的方法经常取不到，会导致 callAnswered 等回调静默丢失。
+ */
 export interface CallStateListener {
-  onCallAlerting?(callInfo: CallInfo): void;
-  onCallAnswered?(callInfo: CallInfo): void;
-  onCallReleased?(callInfo: CallInfo, hangupType: number): void;
-  onCallFailed?(callInfo: CallInfo, errorCode: number, errorMsg: string): void;
-  onDtmfReceived?(callInfo: CallInfo, dtmf: string): void;
+  onCallAlerting(callInfo: CallInfo): void;
+  onCallAnswered(callInfo: CallInfo): void;
+  onCallReleased(callInfo: CallInfo, hangupType: number): void;
+  onCallFailed(callInfo: CallInfo, errorCode: number, errorMsg: string): void;
+  onDtmfReceived(callInfo: CallInfo, dtmf: string): void;
 }
 
 export interface OnServerCallListener {

@@ -33,6 +33,10 @@ jj_callkit/
 2. HAR `CallStateListener` 无 `onCallCalling` → `makeCall` 成功时补发 `callCalling`
 3. 开发与联调必须用 **Flutter for OpenHarmony**，与官方 Flutter SDK 并存时用 `flutter-ohos` 别名
 
+## 编解码注意
+
+EventChannel / MethodChannel 的复杂结果必须用 `Map` / `Array`，**不要**用自定义 ArkTS class（codec 会变成空对象）。
+
 ## 换包
 
 替换 `ohos/har/callsdk/`（从 `easyapp/callsdk-harmony/callsdk` rsync），跑 example 登录 / 外呼 / 挂断验收。

@@ -102,7 +102,6 @@ export class CallSDK {
 
     const loginBridge = new SdkLoginBridge(
       initListener,
-      () => { CallSDK.connectToCCPInternalForIncoming(); },
       (block) => { CallSDK.postToMain(block); }
     );
     void LoginManager.login(config.username, config.password, config.passwordPk, loginBridge);
@@ -171,10 +170,7 @@ export class CallSDK {
   }
 
   static setOnServerCallListener(listener: OnServerCallListener | null): void {
-    if (!CallSDK.initialized) {
-      SdkLogger.warn('CallSDK', 'setOnServerCallListener called but SDK not initialized');
-      return;
-    }
+    // 允许 init 前挂载：插件在 CallSDK.init 之前就会 registerPersistentListeners
     CallSDK.onServerCallListener = listener;
   }
 

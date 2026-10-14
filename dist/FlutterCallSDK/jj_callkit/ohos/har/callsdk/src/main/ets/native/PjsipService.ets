@@ -312,8 +312,10 @@ export class PjsipService {
       return;
     }
     const callId = String(root['callId'] ?? '');
-    const pjsipState = String(root['pjsipState'] ?? '');
+    // 兼容字段名：正式 JSON 用 pjsipState，部分日志/旧路径可能用 state
+    const pjsipState = String(root['pjsipState'] ?? root['state'] ?? '');
     const lastStatus = Number(root['lastStatus'] ?? 0);
+    SdkLogger.info('PjsipService', `call_state callId=${callId} pjsipState=${pjsipState} lastStatus=${lastStatus}`);
     if (pjsipState === 'INCOMING') {
       CallManager.getInstance().onPjsipIncoming(callId);
       return;
