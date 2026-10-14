@@ -29,8 +29,8 @@ jj_callkit/
 
 ## 已知缺口
 
-1. HAR 无 `setOnSipDisconnectedListener` → 不发 `sipDisconnected`
-2. HAR `CallStateListener` 无 `onCallCalling` → `makeCall` 成功时补发 `callCalling`
+1. HAR `CallStateListener` 无 `onCallCalling` → `makeCall` 成功时补发 `callCalling`
+2. `sipDisconnected`：HAR 已通过 PJSIP `reg_state` 丢失 + `setOnSipDisconnectedListener` 发出
 3. 开发与联调必须用 **Flutter for OpenHarmony**，与官方 Flutter SDK 并存时用 `flutter-ohos` 别名
 
 ## 编解码注意

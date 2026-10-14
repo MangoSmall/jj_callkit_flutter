@@ -132,7 +132,7 @@ config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
 | 项 | 说明 |
 |----|------|
 | `CallCallingEvent` | 鸿蒙原生无 `onCallCalling`；插件在 `makeCall` 成功时补发 |
-| `SipDisconnectedEvent` | 鸿蒙 CallSDK 暂无对应监听，本端暂不发出 |
+| `SipDisconnectedEvent` | 由 PJSIP 注册丢失 / `disconnectFromCCP` 发出（与 Android 对齐） |
 | `init` | 登录成功后会等待 SIP 预注册再结束 Future；预注册失败仅打日志，仍视为成功 |
 | 账号缓存 / 麦克风 | 勿用官方 `shared_preferences` / `permission_handler`（无 ohos）；麦克风见上文 EntryAbility 注入 |
 
@@ -400,7 +400,7 @@ await JJCallKit.updateNumberGroup(id: groupId);
 |------|------|
 | `SipConnectedEvent` | SIP 注册成功（同时 `init` 完成） |
 | `SipConnectFailedEvent` | 登录或 SIP 注册失败 |
-| `SipDisconnectedEvent` | 曾注册成功后 SIP 掉线（鸿蒙暂无） |
+| `SipDisconnectedEvent` | 曾注册成功后 SIP 掉线 |
 | `KickedEvent` | 账号在其他端登录 |
 | `CallCallingEvent` | 正在呼叫（鸿蒙在 makeCall 成功时补发） |
 | `CallAlertingEvent` | 对方振铃 |

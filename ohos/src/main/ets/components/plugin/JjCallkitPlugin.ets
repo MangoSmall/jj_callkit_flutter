@@ -40,8 +40,8 @@ import {
  * MethodChannel: com.jj/callkit/methods
  * EventChannel:  com.jj/callkit/events
  *
- * 鸿蒙 CallSDK 暂无 sipDisconnected / onCallCalling；
- * callCalling 在 makeCall 成功时补发。
+ * callCalling：原生无 onCallCalling，在 makeCall 成功时补发。
+ * sipDisconnected：由 HAR 根据 PJSIP reg_state 丢失发出。
  */
 export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler, StreamHandler {
   private methodChannel: MethodChannel | null = null;
@@ -74,6 +74,7 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
     CallSDK.removeCallStateListener(this.callStateListener);
     CallSDK.setOnServerCallListener(null);
     CallSDK.setOnKickedListener(null);
+    CallSDK.setOnSipDisconnectedListener(null);
     CallSDK.setAudioRouteChangeListener(null);
   }
 
@@ -98,6 +99,7 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
         CallSDK.removeCallStateListener(this.callStateListener);
         CallSDK.setOnServerCallListener(null);
         CallSDK.setOnKickedListener(null);
+        CallSDK.setOnSipDisconnectedListener(null);
         CallSDK.setAudioRouteChangeListener(null);
         CallSDK.release();
         result.success(null);
@@ -173,6 +175,9 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
     CallSDK.setOnServerCallListener(this.serverCallListener);
     CallSDK.setOnKickedListener((): void => {
       this.emit('kicked', new HashMap<string, Object | null>());
+    });
+    CallSDK.setOnSipDisconnectedListener((): void => {
+      this.emit('sipDisconnected', new HashMap<string, Object | null>());
     });
     CallSDK.setAudioRouteChangeListener(this.audioRouteChangeListener);
   }

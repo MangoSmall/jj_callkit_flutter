@@ -34,7 +34,7 @@ flutter-ohos doctor -v
 | 项 | 说明 |
 |----|------|
 | `CallCallingEvent` | 鸿蒙原生无 `onCallCalling`；插件在 `makeCall` 成功时补发 |
-| `SipDisconnectedEvent` | 鸿蒙 CallSDK 暂无对应监听，本端暂不发出；掉线后 Demo 不会自动回登录页 |
+| `SipDisconnectedEvent` | 由 PJSIP `reg_state` 丢失 / `disconnectFromCCP` 发出（与 Android 对齐） |
 | `init` | HTTP 登录成功后会等待 SIP 预注册再结束 Future；预注册失败仅打日志，仍视为 init 成功 |
 | `passwordPk` | 与 Android 一致：传入则视为已加密密文，不再本地 MD5+RSA |
 | 音频路由 | 听筒 / 扬声器 / 蓝牙（与 HAR 能力一致） |

@@ -44,6 +44,8 @@ export class PjsipService {
   private muted: boolean = false;
   private speakerOn: boolean = false;
   private regWaiters: RegWaitEntry[] = [];
+  /** 曾注册成功后 reg 丢失（非主动 shutdown） */
+  private registrationLostHandler: (() => void) | null = null;
 
   static getInstance(): PjsipService {
     if (PjsipService.instance === null) {
@@ -126,6 +128,10 @@ export class PjsipService {
 
   isSipRegistered(): boolean {
     return this.sipRegistered;
+  }
+
+  setRegistrationLostHandler(handler: (() => void) | null): void {
+    this.registrationLostHandler = handler;
   }
 
   waitForSipRegistration(timeoutMs: number = 15000): Promise<void> {
@@ -235,6 +241,8 @@ export class PjsipService {
   shutdownStack(): void {
     // 先停重连，避免 epDestroy 后定时器仍触发 prepareSipForIncoming
     this.clearSipReconnectTimer();
+    // 主动关闭：清标记，避免后续 reg_state 再报「掉线」
+    this.registrationLostHandler = null;
     this.wasRegistered = false;
     this.sipRegistered = false;
     this.initialized = false;
@@ -358,6 +366,11 @@ export class PjsipService {
       return;
     }
     if (this.wasRegistered && !active) {
+      // 对齐 Android Event.DISCONNECT：先通知业务，再自动重连
+      const lost = this.registrationLostHandler;
+      if (lost !== null) {
+        lost();
+      }
       this.scheduleSipReconnect();
     }
     if (codeClass >= 4 || (codeClass === 3 && this.regWaiters.length > 0)) {

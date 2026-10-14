@@ -10,7 +10,7 @@ JJCallKit.events.listen((event) { ... });
 |------|------|
 | `SipConnectedEvent` | SIP 注册成功。`init` 同时完成 |
 | `SipConnectFailedEvent` | 登录或 SIP 注册失败 |
-| `SipDisconnectedEvent` | SIP 断开（曾注册成功后掉线；Android / iOS；鸿蒙暂无） |
+| `SipDisconnectedEvent` | SIP 断开（曾注册成功后掉线；三端均有） |
 | `KickedEvent` | 账号在其他端登录 |
 | `CallCallingEvent` | 正在呼叫（SIP INVITE 已发出；鸿蒙在 makeCall 成功时补发） |
 | `CallAlertingEvent` | 对方振铃 |

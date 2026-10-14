@@ -39,6 +39,7 @@ export class CallSDK {
   private static callStateListeners: CallStateListener[] = [];
   private static onServerCallListener: OnServerCallListener | null = null;
   private static onKickedListener: (() => void) | null = null;
+  private static onSipDisconnectedListener: (() => void) | null = null;
   private static currentCallInfo: CallInfo | null = null;
 
   static init(context: common.Context, config: SDKConfig, initListener: InitListener): void {
@@ -100,6 +101,11 @@ export class CallSDK {
       CallSDK.postToMain(() => { CallSDK.onKickedListener?.(); });
     }));
 
+    // PJSIP reg 丢失 → sipDisconnected（对齐 Android Event.DISCONNECT）
+    PjsipService.getInstance().setRegistrationLostHandler((): void => {
+      CallSDK.notifySipDisconnected();
+    });
+
     const loginBridge = new SdkLoginBridge(
       initListener,
       (block) => { CallSDK.postToMain(block); }
@@ -117,6 +123,7 @@ export class CallSDK {
     try {
       CallManager.getInstance().setEventHandler(null);
       SocketManager.getInstance().setKickHandler(null);
+      PjsipService.getInstance().setRegistrationLostHandler(null);
       CallSDK.safeHangup();
       AudioRouteManager.stop();
       LoginManager.logout();
@@ -134,6 +141,7 @@ export class CallSDK {
       CallSDK.callStateListeners = [];
       CallSDK.onServerCallListener = null;
       CallSDK.onKickedListener = null;
+      CallSDK.onSipDisconnectedListener = null;
       AudioRouteManager.setAudioRouteChangeListener(null);
       SdkLogger.warn('CallSDK', 'SDK not initialized, skip release core');
       return;
@@ -148,6 +156,7 @@ export class CallSDK {
     CallSDK.callStateListeners = [];
     CallSDK.onServerCallListener = null;
     CallSDK.onKickedListener = null;
+    CallSDK.onSipDisconnectedListener = null;
     AudioRouteManager.setAudioRouteChangeListener(null);
     CallSDK.sdkConfig = null;
     CallSDK.appContext = null;
@@ -176,6 +185,17 @@ export class CallSDK {
 
   static setOnKickedListener(listener: (() => void) | null): void {
     CallSDK.onKickedListener = listener;
+  }
+
+  /** 与 Android setOnSipDisconnectedListener 对齐；传 null 移除 */
+  static setOnSipDisconnectedListener(listener: (() => void) | null): void {
+    CallSDK.onSipDisconnectedListener = listener;
+  }
+
+  /** 内部：曾注册成功后 SIP 掉线 / 主动 disconnectFromCCP */
+  static notifySipDisconnected(): void {
+    SdkLogger.info('CallSDK', 'SIP disconnected');
+    CallSDK.postToMain(() => { CallSDK.onSipDisconnectedListener?.(); });
   }
 
   static addCallStateListener(listener: CallStateListener): void {
@@ -389,7 +409,13 @@ export class CallSDK {
       SdkLogger.warn('CallSDK', 'disconnectFromCCP called but SDK not initialized');
       return ErrorCode.SDK_NOT_INITIALIZED;
     }
+    // 主动断开：通知业务侧，但不走 reg_state（shutdown 会先清 wasRegistered）
+    const wasConnected = PjsipService.getInstance().isSipRegistered();
+    PjsipService.getInstance().setRegistrationLostHandler(null);
     PjsipService.getInstance().shutdownStack();
+    if (wasConnected) {
+      CallSDK.notifySipDisconnected();
+    }
     return 0;
   }
 

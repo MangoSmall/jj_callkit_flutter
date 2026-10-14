@@ -1,7 +1,7 @@
 ## 0.2.0
 
 - 新增 HarmonyOS（ohos）平台桥接，内置 `@useasy/callsdk-harmony` HAR，与 Android/iOS 共用同一套 Dart API。
-- 鸿蒙侧：`callCalling` 在 `makeCall` 成功时补发；`SipDisconnectedEvent` 暂无（原生 HAR 尚未暴露）。
+- 鸿蒙侧：`callCalling` 在 `makeCall` 成功时补发；`SipDisconnectedEvent` 由 PJSIP 注册丢失 / `disconnectFromCCP` 发出。
 
 ## 0.1.3
 
