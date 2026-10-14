@@ -145,9 +145,11 @@ export default class JjCallkitPlugin implements FlutterPlugin, MethodCallHandler
       case 'canMakeCall':
         result.success(this.canMakeCall());
         break;
-      case 'getLoginInfo':
-        result.success(this.hashMapToCodecMap(this.loginInfoMap()));
+      case 'getLoginInfo': {
+        const login = this.loginInfoMap();
+        result.success(login !== null ? this.hashMapToCodecMap(login) : null);
         break;
+      }
       case 'getAgentConfig':
         this.handleAgentConfig(result);
         break;
