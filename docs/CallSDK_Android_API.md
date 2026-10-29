@@ -491,6 +491,8 @@ dependencies {
 ```proguard
 -keep class com.useasy.callsdk.** { *; }
 -keep interface com.useasy.callsdk.** { *; }
+-keep class org.pjsip.pjsua2.** { *; }
+-keep interface org.pjsip.pjsua2.** { *; }
 ```
 
 ### 7.4 注意事项

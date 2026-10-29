@@ -1,6 +1,6 @@
 # JJCallKit Flutter SDK
 
-当前版本：**0.2.0**  
+当前版本：**0.2.1**  
 内置原生 SDK：Android callsdk **1.3.9**、iOS JJCallKit **1.1.1**、HarmonyOS **@useasy/callsdk-harmony 1.0.0**
 
 ## 目录

@@ -1,6 +1,6 @@
 # JJCallKit Flutter 接入文档
 
-> 版本 **0.2.0** · Android callsdk **1.3.9** · iOS JJCallKit **1.1.1** · HarmonyOS callsdk-harmony **1.0.0**  
+> 版本 **0.2.1** · Android callsdk **1.3.11** · iOS JJCallKit **1.1.1** · HarmonyOS callsdk-harmony **1.0.0**  
 > Dart 入口：`package:jj_callkit/jj_callkit.dart` → `JJCallKit`
 
 ---
@@ -83,7 +83,7 @@ flutter pub get
 
 运行时仍需申请 `RECORD_AUDIO`（Android 12+ 用蓝牙时再申请 `BLUETOOTH_CONNECT`）。无麦克风时 `makeCall` 抛 `JJCallException`，`code == -301`。
 
-混淆规则在插件 `consumer-rules.pro`，会随插件合并；不要删掉对 `com.useasy.callsdk` 的 keep。
+混淆规则在插件 `consumer-rules.pro`，会随插件合并；不要删掉对 `com.useasy.callsdk` / `org.pjsip.pjsua2` 的 keep。
 
 当前 so 仅 **arm64-v8a**，x86 模拟器会找不到 `libpjsua2.so`。
 
@@ -494,5 +494,6 @@ Future 会等到 SIP 注册成功。失败会抛异常并收到 `SipConnectFaile
 
 | 版本 | 说明 |
 |------|------|
+| **0.2.1** | Android `consumer-rules` keep `org.pjsip.pjsua2`；内置 callsdk 1.3.11 |
 | **0.2.0** | 新增 HarmonyOS 桥接（内置 callsdk-harmony）；Android / iOS / 鸿蒙共用 Dart API |
 | **0.1.3** | 统一 Dart API；内置 Android callsdk 1.3.9、iOS JJCallKit 1.1.1；登录 / 外呼 / 服务端来电 / 媒体控制 / 外显号码 / 事件流 |

@@ -12,7 +12,7 @@
 
 `RECORD_AUDIO` 和 Android 12+ 的 `BLUETOOTH_CONNECT` 仍要运行时申请。拨号前用 `permission_handler` 申请麦克风。没有权限时 `makeCall` 返回 `-301`。
 
-混淆规则已经放在插件的 `consumer-rules.pro`，会随插件合并。不要删 `com.useasy.callsdk` 的 keep。
+混淆规则已经放在插件的 `consumer-rules.pro`，会随插件合并。不要删 `com.useasy.callsdk` / `org.pjsip.pjsua2` 的 keep。
 
 当前内置包只有 `arm64-v8a`。模拟器如果是 x86，加载不到 `libpjsua2.so`。验收用 arm64 真机。
 

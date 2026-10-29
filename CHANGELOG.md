@@ -1,3 +1,8 @@
+## 0.2.1
+
+- Android `consumer-rules.pro` 补充 keep `org.pjsip.pjsua2.**`，修复宿主 release R8 裁剪导致通话异常。
+- 内置 Android callsdk 升级至 1.3.11（含前台保活与上述混淆规则）。
+
 ## 0.2.0
 
 - 新增 HarmonyOS（ohos）平台桥接，内置 `@useasy/callsdk-harmony` HAR，与 Android/iOS 共用同一套 Dart API。
